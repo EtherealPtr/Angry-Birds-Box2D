@@ -12,7 +12,8 @@
 
 #include "Bird.h"
 #include <thread>
-#include <iostream> using namespace std;
+#include <iostream> 
+
 /***********************
 * Bird Constructor
 * @author: Rony Hanna  
@@ -20,13 +21,17 @@
 * @return: None
 * @Information: Constructor that initializes bird components
 ********************/
-Bird::Bird()
-	:m_clickCount(0),
-	m_released(false)
+Bird::Bird() :
+	m_clickCount(0),
+	m_released(false),
+	m_randomNum(0),
+	m_specialAbility(true)
 {
 	m_BirdWidth = 60.0f;
 	m_BirdHeight = 60.0f;
 	m_theLine.resize(2);
+
+	srand(static_cast<unsigned int>(time(NULL)));
 }
 
 /***********************
@@ -34,25 +39,7 @@ Bird::Bird()
 * @author: Rony Hanna  
 * @parameter: b2World*
 * @return: None
-* @Information: Function that creates a static ground body
-********************/
-void Bird::Init(b2World* TheWorld, char* _texturePath)
-{
-	m_Texture.loadFromFile(_texturePath);
-	m_Sprite.setTexture(m_Texture);
-
-	b2BodyDef bodyDef;
-	m_Groundbody = TheWorld->CreateBody(&bodyDef);
-	b2Vec2 tmp(100.0f, 100.0f);
-	m_Groundbody->SetTransform(tmp, 80.0f); 
-}
-
-/***********************
-* Init
-* @author: Rony Hanna  
-* @parameter: b2World*
-* @return: None
-* @Information: Function that creates a static ground body
+* @Information: Function that configures bird sprite, loads sounds, and creates a static ground body
 ********************/
 void Bird::Init(b2World* TheWorld, char* _texturePath, float _scaleX, float _scaleY)
 {
@@ -60,6 +47,14 @@ void Bird::Init(b2World* TheWorld, char* _texturePath, float _scaleX, float _sca
 	m_Sprite.setTexture(m_Texture);
 	m_Sprite.setScale(_scaleX, _scaleY);
 	m_Sprite.setOrigin(15.0f, 15.0f);
+
+	if (!m_soundBuffer[0].loadFromFile("Assets/Sounds/Flinged.wav") || (!m_soundBuffer[1].loadFromFile("Assets/Sounds/Flinged2.wav")))
+	{
+		std::cerr << "ERROR: Unable to load sounds.\n";
+	}
+
+	m_flingSounds[0].setBuffer(m_soundBuffer[0]);
+	m_flingSounds[1].setBuffer(m_soundBuffer[1]);
 
 	b2BodyDef bodyDef;
 	m_Groundbody = TheWorld->CreateBody(&bodyDef);
@@ -188,6 +183,19 @@ void Bird::MouseUp(b2World* TheWorld, const b2Vec2& p)
 {
 	if (m_MouseJoint != nullptr)
 	{
+		m_randomNum = (rand() % 2) + 1;
+
+		if (m_randomNum == 1)
+		{
+			m_flingSounds[0].setVolume(60.0f);
+			m_flingSounds[0].play();
+		}
+		else if (m_randomNum == 2)
+		{
+			m_flingSounds[1].setVolume(60.0f);
+			m_flingSounds[1].play();
+		}
+
 		TheWorld->DestroyJoint(m_MouseJoint);
 		m_MouseJoint = nullptr;
 
@@ -292,8 +300,9 @@ void Bird::YellowBird(b2Vec2& _mousePos)
 {
 	if (m_released)
 	{
-		if (m_clickCount >= 1)
+		if (m_clickCount >= 1 && m_specialAbility)
 		{
+			this->m_specialAbility = false;
 			ConvertPixelsToMeters(_mousePos.x, _mousePos.y);
 
 			b2Vec2 birdVelocity = _mousePos - m_BirdPos;
@@ -316,8 +325,9 @@ void Bird::WhiteBird()
 {
 	if (m_released)
 	{
-		if (m_clickCount >= 1)
+		if (m_clickCount >= 1 && m_specialAbility)
 		{
+			this->m_specialAbility = false;
 			b2Vec2 ground = m_BirdPos;
 			ground.y = 40.0f;
 

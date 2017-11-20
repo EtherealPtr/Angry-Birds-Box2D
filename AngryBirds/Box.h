@@ -15,6 +15,7 @@
 #define __BOX_H__
 
 #include "Dependencies\Box2D\include\Box2D\Box2D.h"
+#include "Dependencies\SFML\include\SFML\Audio.hpp"
 #include "utils.h"
 
 class Box
@@ -38,6 +39,8 @@ public:
 	void Update();
 	void Reset(float _x, float _y);
 
+	void SetPlayOnce(bool _bPlayOnce) { m_playOnce = _bPlayOnce; }
+
 private:
 	Box* m_pPointer;
 	float m_BoxScalingFactor;
@@ -45,8 +48,11 @@ private:
 	float m_BoxHeight;
 	float m_velocity;
 	b2Body* TheBoxBody;
+	sf::SoundBuffer m_soundBuffer;
+	sf::Sound m_boxShatterSound;
 
 	bool m_collision = false;
+	bool m_playOnce = true;
 };
 
 #endif // !__BOX_H__

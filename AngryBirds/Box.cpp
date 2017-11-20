@@ -11,6 +11,7 @@
 // Mail			: Rony.han7006@mediadesign.school.nz
 
 #include "Box.h"
+#include <iostream>
 
 /***********************
 * Box Constructor
@@ -26,6 +27,13 @@ Box::Box()
 	m_BoxWidth = 60.0f;
 	m_collision = false;
 	m_pPointer = nullptr;
+
+	if (!m_soundBuffer.loadFromFile("Assets/Sounds/BoxShatters.wav"))
+	{
+		std::cerr << "ERROR: Unable to load sounds.\n";
+	}
+
+	m_boxShatterSound.setBuffer(m_soundBuffer);
 }
 
 /***********************
@@ -65,7 +73,16 @@ void Box::Update()
 	m_velocity = sqrtf((TheBoxBody->GetLinearVelocity().x * TheBoxBody->GetLinearVelocity().x) + (TheBoxBody->GetLinearVelocity().y * TheBoxBody->GetLinearVelocity().y));
 	if (m_collision)
 		if (m_velocity > 4.0f)
+		{
+			if (m_playOnce)
+			{
+				m_playOnce = false;
+				m_boxShatterSound.setVolume(60.0f);
+				m_boxShatterSound.play();
+			}
+
 			TheBoxBody->SetTransform(b2Vec2(-100.0f, -100.0f), 0.0f);
+		}
 }
 
 void Box::Reset(float _x, float _y)

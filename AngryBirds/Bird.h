@@ -16,6 +16,9 @@
 
 #include "QueryCallback.h"
 #include "utils.h"
+#include "Dependencies\SFML\include\SFML\Audio.hpp"
+#include <cstdlib>
+#include <ctime>
 
 class Bird
 {
@@ -23,7 +26,6 @@ public:
 	Bird();
 	~Bird() { /* Do Nothing */ };
 	
-	void Init(b2World*, char* _texturePath);
 	void Init(b2World*, char* _texturePath, float _scaleX, float _scaleY);
 
 	void CreateBird(b2World*, float, float, float _density = 3.0f, float _restitution = 0.5f, float _friction = 0.5f, float _strength = 50.0f);
@@ -45,8 +47,10 @@ public:
 	void YellowBird(b2Vec2& _mousePos);
 	void WhiteBird();
 	bool OutOfBounds() const;
-
+	
 	sf::VertexArray GetLine() { return m_theLine; }
+
+	void SetSpecialAbility(bool _bEnableSpecial) { m_specialAbility = _bEnableSpecial; }
 
 private:
 	float m_BirdWidth;
@@ -55,6 +59,7 @@ private:
 	float m_Strength;
 	int m_clickCount;
 	bool m_released;
+	bool m_specialAbility;
 
 	b2MouseJoint* m_MouseJoint = nullptr;
 	b2Body* m_TheBirdBody = nullptr, *m_Groundbody = nullptr;
@@ -63,13 +68,15 @@ private:
 
 	sf::Sprite m_Sprite;
 	sf::Texture m_Texture;
-
+	sf::SoundBuffer m_soundBuffer[2];
+	sf::Sound m_flingSounds[2];
 	sf::VertexArray m_theLine;
 	sf::RectangleShape m_line;
 	sf::Vertex m_LineStartVertices, m_LineEndVertices;
 	
 	float m_counter;
 	float m_startX, m_startY, m_endX, m_endY;
+	int m_randomNum;
 };
 
 #endif // !__BIRD_H__
