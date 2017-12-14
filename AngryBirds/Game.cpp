@@ -34,7 +34,7 @@ Game::Game() :
 	m_gameOver(false),
 	m_gameLoaded(false)
 {
-	m_GameWindow.create(sf::VideoMode(m_Width, m_Height), "Angry Birds Clone - Rony Hanna", sf::Style::Default);
+	m_GameWindow.create(sf::VideoMode(m_Width, m_Height), "Angry Birds Clone - Rony Hanna", sf::Style::Titlebar | sf::Style::Close);
 	m_GameWindow.setFramerateLimit(60);
 
 	b2Vec2 Gravity(0.0f, 9.8f);
@@ -312,15 +312,15 @@ void Game::ProcessInput()
 				}
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 				{
+					State = GameState::EXIT;
 					m_GameWindow.close();
-					exit(0);
 				}
 				break;
 			}
 			case sf::Event::Closed:
 			{
+				State = GameState::EXIT;
 				m_GameWindow.close();
-				exit(0);
 				break;
 			}
 			}
@@ -343,6 +343,14 @@ void Game::ProcessInput()
 
 						State = GameState::PLAY;
 					}
+
+					break;
+				}
+				case sf::Event::Closed:
+				{
+					State = GameState::EXIT;
+					m_GameWindow.close();
+					break;
 				}
 			}
 		}
